@@ -23,7 +23,7 @@ export const authProvider: AuthBindings = {
       Cookies.set(TOKEN_KEY, data.session.access_token);
       return {
         success: true,
-        redirectTo: "/",
+        redirectTo: "/blog-posts",
       };
     }
 
@@ -146,3 +146,4 @@ export const authProvider: AuthBindings = {
     return null;
   },
 };
+

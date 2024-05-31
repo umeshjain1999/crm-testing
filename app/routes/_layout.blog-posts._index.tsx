@@ -1,9 +1,38 @@
 import { GetManyResponse, useMany, useNavigation } from "@refinedev/core";
 import { useTable } from "@refinedev/react-table";
 import { ColumnDef, flexRender } from "@tanstack/react-table";
+import {
+  List,
+  ShowButton,
+  EditButton,
+  DeleteButton,
+  DateField,
+} from "@refinedev/chakra-ui";
+
+import {
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableContainer,
+  HStack,
+  Text,
+} from "@chakra-ui/react";
 import React from "react";
+import { Pagination } from "~/components/pagination";
+import { Heading } from "~/components/heading";
+import { bearStore } from "~/store";
+import styled from "styled-components";
+
+const WarningHeader = styled(Heading)`
+  color: #000;
+  background: #fde047;
+`;
 
 export default function BlogPostList() {
+  const bears = bearStore((state) => state.bears)
   const columns = React.useMemo<ColumnDef<any>[]>(
     () => [
       {
@@ -12,43 +41,78 @@ export default function BlogPostList() {
         header: "ID",
       },
       {
-        id: "title",
-        accessorKey: "title",
-        header: "Title",
+        id: "first_name",
+        accessorKey: "first_name",
+        header: "First Name",
       },
       {
-        id: "content",
-        accessorKey: "content",
-        header: "Content",
+        id: "last_name",
+        accessorKey: "last_name",
+        header: "Last Name",
       },
       {
-        id: "category",
-        header: "Category",
-        accessorKey: "categories",
-        cell: function render({ getValue, table }) {
-          const meta = table.options.meta as {
-            categoryData: GetManyResponse;
-          };
+        id: "email",
+        accessorKey: "email",
+        header: "Email",
+      },
+      {
+        id: "phone_number",
+        accessorKey: "phone_number",
+        header: "Phone No",
+      },
+      {
+        id: "address",
+        accessorKey: "address",
+        header: "Address",
+      },
+      {
+        id: "city",
+        accessorKey: "city",
+        header: "City",
+      },
+      {
+        id: "state",
+        accessorKey: "state",
+        header: "State",
+      },
+      {
+        id: "postal_code",
+        accessorKey: "postal_code",
+        header: "Postal Code",
+      },
+      {
+        id: "country",
+        accessorKey: "country",
+        header: "Country",
+      },
+      {
+        id: "date_of_birth",
+        accessorKey: "date_of_birth",
+        header: "Date Of Birth",
+      },
+      // {
+      //   id: "category",
+      //   header: "Category",
+      //   accessorKey: "categories",
+      //   cell: function render({ getValue, table }) {
+      //     const meta = table.options.meta as {
+      //       categoryData: GetManyResponse;
+      //     };
 
-          try {
-            const category = meta.categoryData?.data?.find(
-              (item) => item.id == getValue<any>()?.id
-            );
+      //     try {
+      //       const category = meta.categoryData?.data?.find(
+      //         (item) => item.id == getValue<any>()?.id
+      //       );
 
-            return category?.title ?? "Loading...";
-          } catch (error) {
-            return null;
-          }
-        },
-      },
+      //       return category?.title ?? "Loading...";
+      //     } catch (error) {
+      //       return null;
+      //     }
+      //   },
+      // },
       {
-        id: "status",
-        accessorKey: "status",
-        header: "Status",
-      },
-      {
-        id: "createdAt",
-        accessorKey: "createdAt",
+        id: "created_at",
+        accessorKey: "created_at",
         header: "Created At",
         cell: function render({ getValue }) {
           return new Date(getValue<any>()).toLocaleString(undefined, {
@@ -62,69 +126,47 @@ export default function BlogPostList() {
         header: "Actions",
         cell: function render({ getValue }) {
           return (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                flexWrap: "wrap",
-                gap: "4px",
-              }}
-            >
-              <button
-                onClick={() => {
-                  show("blog_posts", getValue() as string);
-                }}
-              >
-                Show
-              </button>
-              <button
-                onClick={() => {
-                  edit("blog_posts", getValue() as string);
-                }}
-              >
-                Edit
-              </button>
-            </div>
-          );
+            <HStack>
+                <ShowButton
+                    hideText
+                    size="sm"
+                    recordItemId={getValue() as number}
+                />
+                {/* <EditButton
+                    hideText
+                    size="sm"
+                    recordItemId={getValue() as number}
+                /> */}
+                {/* <DeleteButton
+                    hideText
+                    size="sm"
+                    recordItemId={getValue() as number}
+                /> */}
+            </HStack>
+        );
         },
       },
     ],
     []
   );
 
-  const { edit, show, create } = useNavigation();
-
   const {
     getHeaderGroups,
     getRowModel,
     setOptions,
     refineCore: {
+      setCurrent,
+      pageCount,
+      current,
       tableQueryResult: { data: tableData },
     },
-    getState,
-    setPageIndex,
-    getCanPreviousPage,
-    getPageCount,
-    getCanNextPage,
-    nextPage,
-    previousPage,
-    setPageSize,
   } = useTable({
     columns,
     refineCoreProps: {
       meta: {
-        select: "*, categories(id,title)",
+        select: "*",
       },
-    },
-  });
-
-  const { data: categoryData } = useMany({
-    resource: "categories",
-    ids:
-      tableData?.data?.map((item) => item?.categories?.id).filter(Boolean) ??
-      [],
-    queryOptions: {
-      enabled: !!tableData?.data,
+      resource: "fake_data"
     },
   });
 
@@ -132,101 +174,53 @@ export default function BlogPostList() {
     ...prev,
     meta: {
       ...prev.meta,
-      categoryData,
     },
   }));
 
   return (
-    <div style={{ padding: "16px" }}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <h1>{"List"}</h1>
-        <button onClick={() => create("blog_posts")}>{"Create"}</button>
-      </div>
-      <div style={{ maxWidth: "100%", overflowY: "scroll" }}>
-        <table>
-          <thead>
-            {getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th key={header.id}>
-                    {!header.isPlaceholder &&
-                      flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {getRowModel().rows.map((row) => (
-              <tr key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <div style={{ marginTop: "12px" }}>
-        <button
-          onClick={() => setPageIndex(0)}
-          disabled={!getCanPreviousPage()}
-        >
-          {"<<"}
-        </button>
-        <button onClick={() => previousPage()} disabled={!getCanPreviousPage()}>
-          {"<"}
-        </button>
-        <button onClick={() => nextPage()} disabled={!getCanNextPage()}>
-          {">"}
-        </button>
-        <button
-          onClick={() => setPageIndex(getPageCount() - 1)}
-          disabled={!getCanNextPage()}
-        >
-          {">>"}
-        </button>
-        <span>
-          <strong>
-            {" "}
-            {getState().pagination.pageIndex + 1} / {getPageCount()}{" "}
-          </strong>
-        </span>
-        <span>
-          | {"Go"}:{" "}
-          <input
-            type="number"
-            defaultValue={getState().pagination.pageIndex + 1}
-            onChange={(e) => {
-              const page = e.target.value ? Number(e.target.value) - 1 : 0;
-              setPageIndex(page);
-            }}
-          />
-        </span>{" "}
-        <select
-          value={getState().pagination.pageSize}
-          onChange={(e) => {
-            setPageSize(Number(e.target.value));
-          }}
-        >
-          {[10, 20, 30, 40, 50].map((pageSize) => (
-            <option key={pageSize} value={pageSize}>
-              {"Show"} {pageSize}
-            </option>
-          ))}
-        </select>
-      </div>
-    </div>
+    <>
+      <WarningHeader>⚠️ Beware {bears} bears 🐻 around here...</WarningHeader>
+      <List title="Tabular Data">
+        <TableContainer whiteSpace="pre-line">
+          <Table variant="simple">
+            <Thead>
+              {getHeaderGroups().map((headerGroup) => (
+                <Tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <Th key={header.id} w="100%">
+                      <Text>
+                      {!header.isPlaceholder &&
+                        flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                      </Text>
+                    </Th>
+                  ))}
+                </Tr>
+              ))}
+            </Thead>
+            <Tbody>
+              {getRowModel().rows.map((row) => (
+                <Tr key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <Td key={cell.id}>
+                      <Text>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </Text>
+                    </Td>
+                  ))}
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </TableContainer>
+        <Pagination
+          current={current}
+          pageCount={pageCount}
+          setCurrent={setCurrent}
+        />
+      </List>
+    </>
   );
 }

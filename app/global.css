@@ -2,7 +2,7 @@ body {
   margin: 0px;
 }
 
-table {
+/* table {
   border-spacing: 0;
   border: 1px solid black;
 }
@@ -30,9 +30,9 @@ td {
 table th:last-child,
 td:last-child {
   border-right: 0;
-}
+} */
 
-.layout {
+/* .layout {
   display: flex;
   gap: 16px;
 }
@@ -85,4 +85,4 @@ td:last-child {
 
 .menu ul {
   padding-left: 16px;
-}
+} */

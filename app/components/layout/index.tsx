@@ -1,15 +1,11 @@
+import { ThemedLayoutV2 } from "@refinedev/chakra-ui";
 import { PropsWithChildren } from "react";
-import { Breadcrumb } from "../breadcrumb";
-import { Menu } from "../menu";
-
+import { Heading } from "@chakra-ui/react";
 export const Layout: React.FC<PropsWithChildren> = ({ children }) => {
   return (
-    <div className="layout">
-      <Menu />
-      <div className="content">
-        <Breadcrumb />
+    <ThemedLayoutV2>
         <div>{children}</div>
-      </div>
-    </div>
+    </ThemedLayoutV2>
   );
 };
+

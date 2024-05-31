@@ -1,5 +1,8 @@
+import { ChakraProvider, extendTheme } from "@chakra-ui/react";
+import { RefineThemes } from "@refinedev/chakra-ui";
 import type { MetaFunction } from "@remix-run/node";
 import {
+  json,
   Links,
   LiveReload,
   Meta,
@@ -8,14 +11,14 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 
-import { GitHubBanner, Refine } from "@refinedev/core";
-import { DevtoolsPanel, DevtoolsProvider } from "@refinedev/devtools";
+import { Refine } from "@refinedev/core";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 import routerProvider, {
   UnsavedChangesNotifier,
 } from "@refinedev/remix-router";
 
 import { dataProvider } from "@refinedev/supabase";
+import { useLoaderData } from "@remix-run/react";
 import { authProvider } from "~/authProvider";
 import styles from "~/global.css";
 import { supabaseClient } from "~/utility";
@@ -26,9 +29,23 @@ export const meta: MetaFunction = () => [
   },
 ];
 
+export async function loader() {
+  return json({
+    ENV: {
+      DATABASE_URL: process.env.DATABASE_URL,
+      DATABASE_PUBLIC_KEY: process.env.DATABASE_PUBLIC_KEY,
+    },
+  });
+}
+
 export default function App() {
+  const data = useLoaderData<typeof loader>();
+
+  const customTheme = extendTheme({
+    ...RefineThemes.Orange,
+  });
   return (
-    <html lang="en">
+    (<html lang="en">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -36,35 +53,37 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <GitHubBanner />
+      <ChakraProvider theme={customTheme}>
         <RefineKbarProvider>
-          <DevtoolsProvider>
+          {/* <DevtoolsProvider> */}
             <Refine
               routerProvider={routerProvider}
               dataProvider={dataProvider(supabaseClient)}
               authProvider={authProvider}
               resources={[
-                {
-                  name: "blog_posts",
-                  list: "/blog-posts",
-                  create: "/blog-posts/create",
-                  edit: "/blog-posts/edit/:id",
-                  show: "/blog-posts/show/:id",
-                  meta: {
-                    canDelete: true,
-                  },
+              {
+                name: "fake_data",
+                list: "/blog-posts",
+                // create: "/blog-posts/create",
+                // edit: "/blog-posts/edit/:id",
+                show: "/blog-posts/show/:id",
+                meta: {
+                  label: "Tabular Data",
+                  canDelete: true,
                 },
-                {
-                  name: "categories",
-                  list: "/categories",
-                  create: "/categories/create",
-                  edit: "/categories/edit/:id",
-                  show: "/categories/show/:id",
-                  meta: {
-                    canDelete: true,
-                  },
+              },{
+                name: "styled_components",
+                list: "/styled-components",
+                meta: {
+                  label: "Style Comp.",
                 },
-              ]}
+              },{
+                name: "zustand",
+                list: "/zustand",
+                meta: {
+                  label: "Zustand",
+                },
+              }]}
               options={{
                 syncWithLocation: true,
                 warnWhenUnsavedChanges: true,
@@ -78,14 +97,22 @@ export default function App() {
                 <RefineKbar />
               </>
             </Refine>
-            <DevtoolsPanel />
-          </DevtoolsProvider>
+            {/* <DevtoolsPanel /> */}
+          {/* </DevtoolsProvider> */}
         </RefineKbarProvider>
+        </ChakraProvider>
         <ScrollRestoration />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.ENV = ${JSON.stringify(
+              data.ENV
+            )}`,
+          }}
+        />
         <Scripts />
         <LiveReload />
       </body>
-    </html>
+    </html>)
   );
 }
 

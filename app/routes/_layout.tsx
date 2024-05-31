@@ -1,3 +1,5 @@
+import { redirect, LoaderFunctionArgs } from "@remix-run/node";
+import { authProvider } from "~/authProvider";
 import { Outlet } from "@remix-run/react";
 import { Layout } from "~/components/layout";
 
@@ -15,17 +17,12 @@ export default function BaseLayout() {
  * If not, we're redirecting the user to the login page.
  * This is applied for all routes that are nested under this layout (_protected).
  */
-// export async function loader({ request }: LoaderArgs) {
-//   const { authenticated, redirectTo } = await authProvider.check(request);
+export async function loader({ request }: LoaderFunctionArgs) {
+  const { authenticated, redirectTo } = await authProvider.check(request);
 
-//   if (!authenticated) {
-//     // throw redirect(redirectTo ?? "/login");
-//   }
+  if (!authenticated) {
+    throw redirect(redirectTo ?? "/login");
+  }
 
-//   return json({
-//     ENV: {
-//       DATABASE_URL: process.env.DATABASE_URL,
-//       DATABASE_PUBLIC_KEY: process.env.DATABASE_PUBLIC_KEY,
-//     },
-//   });
-// }
+  return {};
+}

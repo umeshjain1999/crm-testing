@@ -17,9 +17,9 @@ export default function AuthLayout() {
 export async function loader({ request }: LoaderFunctionArgs) {
   const { authenticated, redirectTo } = await authProvider.check(request);
 
-  // if (!authenticated) {
-  //   throw redirect(redirectTo ?? "/");
-  // }
+  if (authenticated) {
+    throw redirect(redirectTo ?? "/");
+  }
   
   return {}
 }

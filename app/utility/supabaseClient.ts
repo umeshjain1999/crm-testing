@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { createClient } from "@refinedev/supabase";
 const SUPABASE_URL = typeof window === 'undefined' ? process.env.DATABASE_URL : window.ENV.DATABASE_URL;
 
